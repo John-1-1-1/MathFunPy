@@ -1,7 +1,4 @@
-from copy import deepcopy
-
 class Number:
-
     def __init__(self, num):
         self.num = num
 
@@ -45,24 +42,43 @@ class Symbol:
         self.operation = None
 
     def __add_operation(self, other, operation):
-        ret = Symbol("Func")
 
-        ret.symb_a = self
-        ret.symb_b = other
-        ret.operation = operation
+        if type(other) == int and type(self.symb_b) == Number:
+            self.symb_b = Number(self.operators[operation](self.symb_b.num, other))
+            return self
 
-        return ret
+        if type(other) == Symbol or type(self) == Symbol:
+            ret = Symbol("Func")
+
+            ret.symb_a = self
+            ret.symb_b = other if type(other) == Symbol else Number(other)
+            ret.operation = operation
+
+            return ret
+
 
     def __add__(self, other):
+        return self.__add_operation(other, "+")
+
+    def __radd__(self, other):
         return self.__add_operation(other, "+")
 
     def __sub__(self, other):
         return self.__add_operation(other, "-")
 
+    def __rsub__(self, other):
+        return self.__add_operation(other, "-")
+
     def __mul__(self, other):
         return self.__add_operation(other, "*")
 
+    def __rmul__(self, other):
+        return self.__add_operation(other, "*")
+
     def __truediv__(self, other):
+        return self.__add_operation(other, "/")
+
+    def __rtruediv__(self, other):
         return self.__add_operation(other, "/")
 
     def __pow__(self, power, modulo=None):
@@ -75,24 +91,26 @@ class Symbol:
         ret = str(self.symb_a) + " " + self.operation + " " + str(self.symb_b)
 
         if self.operation == "*" or self.operation == "/":
-            ret = "(" + str(self.symb_a) + ") " + self.operation + " (" + str(self.symb_b) + ")"
+            ret = "(" + str(self.symb_a) + " " + self.operation + " " + str(self.symb_b) + ")"
         return ret
-
-
 
     def lambdify(self, *objects):
 
-        objects = list(objects)
-
         if type(objects[0]) != str:
             objects = [i.name for i in objects]
-
+        else:
+            objects = list(objects)
+            
         la_l = None
         la_r = None
-        if self.symb_a != None:
-            la_l = self.symb_a.lambdify(*objects)
 
-        if self.symb_b != None:
+        if type(self.symb_a) == Number:
+            la_l = lambda *params, num = self.symb_a.num: num
+        elif self.symb_a != None:
+            la_l = self.symb_a.lambdify(*objects)
+        if type(self.symb_b) == Number:
+            la_r = lambda *params, num = self.symb_b.num: num
+        elif self.symb_b != None:
             la_r = self.symb_b.lambdify(*objects)
 
         if self.operation == None:
@@ -100,14 +118,15 @@ class Symbol:
 
         return lambda *params, function = self.operators[self.operation], la_ll = la_l, la_rr = la_r: function(la_ll(*params), la_rr(*params))
 
+if __name__ == "__main__":
 
-y = Symbol("y")
-x = Symbol("x")
-z = Symbol("z")
+    y = Symbol("y")
+    x = Symbol("x")
+    z = Symbol("z")
 
-func = x +y * z
+    func = 12 +y * z + 9 + 1222 + (3*x*5)
 
-print(func)
+    print(func)
 
-f = func.lambdify(x,y,z)
-print(f(1,22, 2))
+    f = func.lambdify(x,y,z)
+    print(f(1,3, 2))
