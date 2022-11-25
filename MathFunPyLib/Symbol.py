@@ -16,17 +16,39 @@ class Symbol:
         self.symb_b = None
         self.operation = None
 
+    def diff(self):
+
+        if type(self.symb_a) == Symbol:
+            self.symb_a = self.symb_a.diff()
+
+        if type(self.symb_b) == Symbol:
+            self.symb_b = self.symb_b.diff()
+
+        if type(self.symb_a) == Number and self.operation in ['-', '+']:
+            return self.symb_b
+
+        if type(self.symb_b) == Number and self.operation in ['-', '+']:
+            return self.symb_a
+
+
+        return self
+
+
+
     def __add_operation(self, other, operation):
 
-        if type(other) == int and type(self.symb_b) == Number:
-            self.symb_b = Number(self.operators[operation](self.symb_b.num, other))
+        if type(other) != Symbol:
+            other = Number(other)
+
+        if type(other) == Number and type(self.symb_b) == Number:
+            self.symb_b = self.operators[operation](self.symb_b, other)
             return self
 
         if type(other) == Symbol or type(self) == Symbol:
             ret = Symbol("Func")
 
             ret.symb_a = self
-            ret.symb_b = other if type(other) == Symbol else Number(other)
+            ret.symb_b = other if type(other) == Symbol else other
             ret.operation = operation
 
             return ret
@@ -83,6 +105,7 @@ class Symbol:
             la_l = lambda *params, num = self.symb_a.num: num
         elif self.symb_a != None:
             la_l = self.symb_a.lambdify(*objects)
+
         if type(self.symb_b) == Number:
             la_r = lambda *params, num = self.symb_b.num: num
         elif self.symb_b != None:

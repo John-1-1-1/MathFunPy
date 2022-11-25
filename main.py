@@ -6,9 +6,11 @@ if __name__ == "__main__":
     x = Symbol("x")
     z = Symbol("z")
 
-    func = 12 +y * z + 9 + 1222 + (3*x*5)
+    func = y+ 1222
 
     print(func)
 
-    f = func.lambdify(x,y,z)
-    print(f(1,3, 2))
+    f = func.lambdify(y)
+    print(func.diff())
+    print(f(2))
+    print(func.diff().lambdify(y)(4))
