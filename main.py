@@ -6,8 +6,6 @@ if __name__ == "__main__":
     x = Symbol("x")
     z = Symbol("z")
 
-    func = 2+ ((z+4)**3) + 1222 +12 + (x *8+10+y+9)
+    func = z+4 + 5
 
-    print(func)
-
-    func.print_tree()
+    print(func+9)
