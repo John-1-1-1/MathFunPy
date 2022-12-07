@@ -1,6 +1,11 @@
 from MathFunPyLib.Number import Number
 
 
+class listSymbols:
+    def __init__(self):
+        self.listSymbols = []
+
+
 class Symbol:
     operators = {
         "+": lambda x, y: x + y,
@@ -16,7 +21,7 @@ class Symbol:
         self.symb_b = None
         self.operation = None
 
-    def diff(self):
+    def diff(self, symbol):
 
         if type(self.symb_a) == Symbol:
             self.symb_a = self.symb_a.diff()
@@ -30,28 +35,43 @@ class Symbol:
         if type(self.symb_b) == Number and self.operation in ['-', '+']:
             return self.symb_a
 
+        #if type(self.symb_a) == Symbol and self.operation == "^":
+        #    self.symb_a = self.symb_a * self.symb_b.copy()
+        #    self.symb_b = self.symb_b - 1
+
+
 
         return self
 
-
-
     def __add_operation(self, other, operation):
+
+        if operation == self.operation:
+            if type(self.symb_a) != list:
+                self.symb_a = [self.symb_a, other]
+            else:
+                self.symb_a = [*self.symb_a, other]
+            return self
 
         if type(other) != Symbol:
             other = Number(other)
 
-        if type(other) == Number and type(self.symb_b) == Number:
-            self.symb_b = self.operators[operation](self.symb_b, other)
+        if type(other) == Number and type(self.symb_b) == Number and \
+                 self.operation in ["+", "-"] and operation in ["+", "-"]:
+            self.symb_b = self.operators[operation]( self.symb_b, other)
             return self
 
-        if type(other) == Symbol or type(self) == Symbol:
+        if type(self.symb_a) == Symbol and self.operation in ["+", "-"] and operation in ["+", "-"]:
+            self.symb_a = self.symb_a.__add_operation(other, operation)
+            return self
+        else:
             ret = Symbol("Func")
 
             ret.symb_a = self
-            ret.symb_b = other if type(other) == Symbol else other
+            ret.symb_b = other
             ret.operation = operation
 
             return ret
+
 
 
     def __add__(self, other):
@@ -85,11 +105,31 @@ class Symbol:
         if self.symb_a == None or self.symb_b == None:
             return self.name
 
-        ret = str(self.symb_a) + " " + self.operation + " " + str(self.symb_b)
+        ret = "("+str(self.symb_a) + " " + self.operation + " " + str(self.symb_b)+")"
 
         if self.operation == "*" or self.operation == "/":
-            ret = "(" + str(self.symb_a) + " " + self.operation + " " + str(self.symb_b) + ")"
+            ret = f"({str(self.symb_a)} {self.operation} {str(self.symb_b)})"
         return ret
+
+    def print_tree(self, n = 1):
+        print("-" * n, self.name, end = "")
+        if self.operation != None:
+            print(" ", self.operation, end=" ")
+        if type(self.symb_a) == Number:
+            print(self.symb_a.num, end=" ")
+        if type(self.symb_b) == Number:
+            print(self.symb_b.num, end=" ")
+        print()
+        if self.symb_a != None and type(self.symb_a) == Symbol:
+            self.symb_a.print_tree(n+1)
+        if self.symb_b != None and type(self.symb_b) == Symbol:
+            self.symb_b.print_tree(n+1)
+        #print("-" * n, self.symb_a.name if type(self.symb_a) == Symbol else self.symb_a.num, self.operation)
+        #print("-" * n, self.symb_b.name if type(self.symb_b) == Symbol else self.symb_b.num)
+
+
+
+
 
     def lambdify(self, *objects):
 
@@ -98,18 +138,12 @@ class Symbol:
         else:
             objects = list(objects)
 
-        la_l = None
-        la_r = None
+        obj_lambda = lambda symbol: (lambda *params, num = symbol.num: num) \
+            if type(symbol) == Number else symbol.lambdify(*objects) \
+            if symbol != None else None
 
-        if type(self.symb_a) == Number:
-            la_l = lambda *params, num = self.symb_a.num: num
-        elif self.symb_a != None:
-            la_l = self.symb_a.lambdify(*objects)
-
-        if type(self.symb_b) == Number:
-            la_r = lambda *params, num = self.symb_b.num: num
-        elif self.symb_b != None:
-            la_r = self.symb_b.lambdify(*objects)
+        la_l = obj_lambda(self.symb_a)
+        la_r = obj_lambda(self.symb_b)
 
         if self.operation == None:
             return lambda *params, data = objects.index(self.name): params[data]

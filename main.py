@@ -6,11 +6,8 @@ if __name__ == "__main__":
     x = Symbol("x")
     z = Symbol("z")
 
-    func = y+ 1222
+    func = 2+ ((z+4)**3) + 1222 +12 + (x *8+10+y+9)
 
     print(func)
 
-    f = func.lambdify(y)
-    print(func.diff())
-    print(f(2))
-    print(func.diff().lambdify(y)(4))
+    func.print_tree()
