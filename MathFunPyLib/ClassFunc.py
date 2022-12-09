@@ -16,3 +16,10 @@ class ClassFunc:
 
     def __rsub__(self, other):
         return self._add_operation(other, "-")
+
+    def __mul__(self, other):
+        return self._add_operation(other, "*")
+
+    def __rmul__(self, other):
+        return self._add_operation(other, "*")
+

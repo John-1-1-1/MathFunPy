@@ -6,6 +6,6 @@ if __name__ == "__main__":
     x = Symbol("x")
     z = Symbol("z")
 
-    func = z+4 + 5
+    func = (z + 9* x- 9 -8 - x) * 3 +4 + 5 - y
 
-    print(func - 9 -8 - x)
+    print(func )
