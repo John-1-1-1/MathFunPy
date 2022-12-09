@@ -8,4 +8,4 @@ if __name__ == "__main__":
 
     func = z+4 + 5
 
-    print(func+9)
+    print(func - 9 -8 - x)
