@@ -14,3 +14,6 @@ class Sub(Operation):
         else:
             ret = "-"+str(self.args[0])
         return ret
+
+    def lambdify(self):
+        return sum([-i for i in self.args])

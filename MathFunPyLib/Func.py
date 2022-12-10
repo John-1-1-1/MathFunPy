@@ -1,6 +1,7 @@
 import copy
 
 from MathFunPyLib.ClassFunc import ClassFunc
+from MathFunPyLib.Num import Num
 from MathFunPyLib.Operation import Operation
 from MathFunPyLib.Div import Div
 from MathFunPyLib.Mul import Mul
@@ -30,7 +31,6 @@ class Func(ClassFunc, Operation):
     def __init__(self, object: Operation):
         super().__init__("Func")
         self.args = [object]
-        self.next_obj = None
 
     def get_level_func(self, operation):
         for index, list_operation in self.priority.items():
@@ -39,29 +39,17 @@ class Func(ClassFunc, Operation):
         return -1
 
     def _add_operation(self, other, operation):
-
-        index_operation = [i.name for i in self.args]
-        index_operation = index_operation.index(operation) if index_operation.count(operation) > 0 else -1
-        if index_operation != -1:
-            self.args[index_operation].args.append(other)
-        elif self.get_level_func(self.args[0].name) == self.get_level_func(operation):
-            self.args.append(self.operators[operation](other))
-
-        elif self.get_level_func(self.args[0].name) < self.get_level_func(operation):
-            f = Func(copy.deepcopy(self.operators[operation](other)))
-            f.next_obj = copy.deepcopy(self)
-            return f
-
-        elif self.get_level_func(self.args[0].name) > self.get_level_func(operation):
-            f = Func(copy.deepcopy(self))
-            f.next_obj = copy.deepcopy(self.operators[operation](other))
-            return f
-
+        if isinstance(other, Operation):
+            other = Num("num", other)
+        self.args.append(self.operators[operation](copy.deepcopy(other)))
         return self
 
     def __str__(self):
-        return ' '.join([str(i) for i in self.args]) + (("(" + str(self.next_obj) + ")") if self.next_obj != None else "")
+        return "("+' '.join([str(i) for i in self.args]) + ")"
 
     @staticmethod
     def get_func(operation, other, symbol):
         return Func.operators[operation](copy.deepcopy(symbol), other)
+
+    def lambdify(self):
+        pass

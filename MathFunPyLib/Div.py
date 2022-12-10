@@ -1,5 +1,5 @@
 from MathFunPyLib.Operation import Operation
-
+from functools import reduce
 
 class Div(Operation):
 
@@ -12,3 +12,6 @@ class Div(Operation):
             return "/".join([str(i) for i in self.args])
         else:
             return str(self.args[0])
+
+    def lambdify(self):
+        return reduce(lambda x,y: x*y,[1/i for i in self.args])

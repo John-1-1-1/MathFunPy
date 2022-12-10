@@ -8,4 +8,7 @@ class Sum(Operation):
         self.args = list(args)
 
     def __str__(self):
-        return '+'.join([str(i) for i in self.args])
+        return "+" + '+'.join([str(i) for i in self.args])
+
+    def lambdify(self):
+        return sum(self.args)

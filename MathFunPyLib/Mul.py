@@ -1,3 +1,4 @@
+from functools import reduce
 from MathFunPyLib.Operation import Operation
 
 
@@ -14,3 +15,6 @@ class Mul(Operation):
         else:
             ret = str(self.args[0])
         return ret
+
+    def lambdify(self):
+        return reduce(lambda x,y: x*y, self.args)
