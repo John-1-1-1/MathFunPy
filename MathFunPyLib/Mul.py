@@ -13,4 +13,4 @@ class Mul(Operation):
             ret = "*".join([str(i) for i in self.args])
         else:
             ret = str(self.args[0])
-        return f"<Mul {ret}>"
+        return ret

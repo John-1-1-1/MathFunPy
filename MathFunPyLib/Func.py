@@ -29,7 +29,7 @@ class Func(ClassFunc, Operation):
 
     def __init__(self, object: Operation):
         super().__init__("Func")
-        self.obj = [object]
+        self.args = [object]
         self.next_obj = None
 
     def get_level_func(self, operation):
@@ -40,27 +40,27 @@ class Func(ClassFunc, Operation):
 
     def _add_operation(self, other, operation):
 
-        index_operation = [i.name for i in self.obj]
+        index_operation = [i.name for i in self.args]
         index_operation = index_operation.index(operation) if index_operation.count(operation) > 0 else -1
         if index_operation != -1:
-            self.obj[index_operation].args.append(other)
-        elif self.get_level_func(self.obj[0].name) == self.get_level_func(operation):
-            self.obj.append(self.operators[operation](other))
+            self.args[index_operation].args.append(other)
+        elif self.get_level_func(self.args[0].name) == self.get_level_func(operation):
+            self.args.append(self.operators[operation](other))
 
-        elif self.get_level_func(self.obj[0].name) < self.get_level_func(operation):
-            f = Func(self.operators[operation](other))
-            f.next_obj = self
+        elif self.get_level_func(self.args[0].name) < self.get_level_func(operation):
+            f = Func(copy.deepcopy(self.operators[operation](other)))
+            f.next_obj = copy.deepcopy(self)
             return f
 
-        elif self.get_level_func(self.obj[0].name) > self.get_level_func(operation):
-            f = Func(self)
-            f.next_obj = self.operators[operation](other)
+        elif self.get_level_func(self.args[0].name) > self.get_level_func(operation):
+            f = Func(copy.deepcopy(self))
+            f.next_obj = copy.deepcopy(self.operators[operation](other))
             return f
 
         return self
 
     def __str__(self):
-        return f"<Func ({', '.join([str(i) for i in self.obj])} || {self.next_obj})>"
+        return ' '.join([str(i) for i in self.args]) + (("(" + str(self.next_obj) + ")") if self.next_obj != None else "")
 
     @staticmethod
     def get_func(operation, other, symbol):
